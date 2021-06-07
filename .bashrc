@@ -1,8 +1,20 @@
 #add to .bashrc
 
+
+if [ -d ${HOME}/.bashrc.d ]
+then
+  for file in ~/.bashrc.d/*.bashrc
+  do
+    source "${file}"
+  done
+fi
+
 #===============================#
 #	Alias
 #===============================#
+
+# Edit this .bashrc file
+alias ebrc='nano ~/.bashrc'
 
 # common variations of the ls command
 alias ll="ls -l"
@@ -26,6 +38,17 @@ alias gr='git rebase'
 alias gri='git rebase --interactive'
 alias gcp='git cherry-pick'
 alias grm='git rm'
+
+# alias chmod commands
+alias mx='chmod a+x'
+alias 000='chmod -R 000'
+alias 644='chmod -R 644'
+alias 666='chmod -R 666'
+alias 755='chmod -R 755'
+alias 777='chmod -R 777'
+
+# Show open ports
+alias openports='netstat -nape --inet'
 
 #apt
 alias apt-update="sudo apt update"
@@ -53,6 +76,21 @@ alias wget='wget -c'
 
 #Copy with progress bar
 alias cpv='rsync -ah --info=progress2'
+
+#nano
+alias nano='nano -wET 4'
+
+#grep
+alias grep="grep --color"
+
+#tree like output
+alias tree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
+
+#ssh alias
+#alias servername="ssh username@address"
+alias plex=ssh plex@192.168.1.59
+# alias SERVERNAME='ssh YOURWEBSITE.com -l USERNAME -p PORTNUMBERHERE'
+
 
 #===============================#
 #	Functions		            #
@@ -83,8 +121,83 @@ ex ()
   fi
 }
 
+# Copy file with a progress bar
+cpp()
+{
+	set -e
+	strace -q -ewrite cp -- "${1}" "${2}" 2>&1 \
+	| awk '{
+	count += $NF
+	if (count % 10 == 0) {
+		percent = count / total_size * 100
+		printf "%3d%% [", percent
+		for (i=0;i<=percent;i++)
+			printf "="
+			printf ">"
+			for (i=percent;i<100;i++)
+				printf " "
+				printf "]\r"
+			}
+		}
+	END { print "" }' total_size=$(stat -c '%s' "${1}") count=0
+}
+
+# Copy and go to the directory
+cpg ()
+{
+	if [ -d "$2" ];then
+		cp $1 $2 && cd $2
+	else
+		cp $1 $2
+	fi
+}
+
+# Move and go to the directory
+mvg ()
+{
+	if [ -d "$2" ];then
+		mv $1 $2 && cd $2
+	else
+		mv $1 $2
+	fi
+}
+
+# Create and go to the directory
+mkdirg ()
+{
+	mkdir -p $1
+	cd $1
+}
+
 # Move 'up' so many directories instead of using several cd ../../, etc.
 up() { cd $(eval printf '../'%.0s {1..$1}) && pwd; }
+
+netinfo ()
+{
+	echo "--------------- Network Information ---------------"
+	/sbin/ifconfig | awk /'inet addr/ {print $2}'
+	echo ""
+	/sbin/ifconfig | awk /'Bcast/ {print $3}'
+	echo ""
+	/sbin/ifconfig | awk /'inet addr/ {print $4}'
+
+	/sbin/ifconfig | awk /'HWaddr/ {print $4,$5}'
+	echo "---------------------------------------------------"
+}
+
+# IP address lookup
+alias whatismyip="whatsmyip"
+function whatsmyip ()
+{
+	# Dumps a list of all IP addresses for every device
+	# /sbin/ifconfig |grep -B1 "inet addr" |awk '{ if ( $1 == "inet" ) { print $2 } else if ( $2 == "Link" ) { printf "%s:" ,$1 } }' |awk -F: '{ print $1 ": " $3 }';
+
+	# Internal IP Lookup
+	echo -n "Internal IP: " ; /sbin/ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'
+
+	# External IP Lookup
+	echo -n "External IP: " ; wget http://smart-ip.net/myip -O - -q
+}
 
 #Converting audio and video files
 function 2ogg() { eyeD3 --remove-all-images "$1"; fname="${1%.*}"; sox "$1" "$fname.ogg" && rm "$1"; }
@@ -98,3 +211,4 @@ function 2webm() { fname="${1%.*}"; ffmpeg -threads 0 -i "$1" -c:v libvpx "$fnam
 function 2h265() { fname="${1%.*}"; ffmpeg -threads 0 -i "$1" -c:v libx265 "$fname'_converted'.mp4" && rm "$1"; }
 function 2flv() { fname="${1%.*}"; ffmpeg -threads 0 -i "$1" "$fname.flv" && rm "$1"; }
 function 2mpg() { fname="${1%.*}"; ffmpeg -threads 0 -i "$1" "$fname.mpg" && rm "$1"; }
+
