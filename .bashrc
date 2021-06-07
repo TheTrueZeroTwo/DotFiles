@@ -27,6 +27,12 @@ alias gri='git rebase --interactive'
 alias gcp='git cherry-pick'
 alias grm='git rm'
 
+#apt
+alias apt-update="sudo apt update"
+alias apt-upgrade="sudo apt upgrade -y"
+alias apt-update-full="sudo apt update && sudo apt upgrade -y"
+alias apt-install="sudo apt install -y"
+
 #Generate a random strong password
 alias genpasswd="strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 30 | tr -d '\n'; echo"
 
