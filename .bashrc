@@ -88,7 +88,7 @@ alias tree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^
 
 #ssh alias
 #alias servername="ssh username@address"
-alias plex=ssh plex@192.168.1.59
+alias plex="ssh plex@192.168.1.59"
 # alias SERVERNAME='ssh YOURWEBSITE.com -l USERNAME -p PORTNUMBERHERE'
 
 
