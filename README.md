@@ -10,4 +10,7 @@ Put this in yout .bashrc file
 if [ -f ~/.bash_aliases ]; then
     source ~/.bash_aliases
 fi
+if [ -f ~/.pentesting_aliases ]; then
+    source ~/.pentesting_aliases
+fi
 ```
