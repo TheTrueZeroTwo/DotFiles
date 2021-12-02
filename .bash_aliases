@@ -241,6 +241,56 @@ mkdirg ()
 # Move 'up' so many directories instead of using several cd ../../, etc.
 up() { cd $(eval printf '../'%.0s {1..$1}) && pwd; }
 
+
+#show network info for multiple distros
+netinfo2 ()
+{
+if [ -e "/usr/bin/apt-get" ] ; then # Apt-based distros (Debian, Ubuntu, etc.)
+	echo "--------------- Network Information ---------------"
+	/sbin/ifconfig | awk /'inet addr/ {print $2}'
+	echo ""
+	/sbin/ifconfig | awk /'Bcast/ {print $3}'
+	echo ""
+	/sbin/ifconfig | awk /'inet addr/ {print $4}'
+
+	/sbin/ifconfig | awk /'HWaddr/ {print $4,$5}'
+	echo "---------------------------------------------------"
+elif [ -e "/usr/bin/pacman" ] ; then # Arch Linux
+	echo "--------------- Network Information ---------------"
+	 | awk /'inet addr/ {print $2}'
+	echo ""
+	 | awk /'Bcast/ {print $3}'
+	echo ""
+	 | awk /'inet addr/ {print $4}'
+
+	 | awk /'HWaddr/ {print $4,$5}'
+	echo "---------------------------------------------------"
+
+elif [ -e "/usr/bin/yum" ] ; then # RPM-based distros
+	echo "--------------- Network Information ---------------"
+	 | awk /'inet addr/ {print $2}'
+	echo ""
+	 | awk /'Bcast/ {print $3}'
+	echo ""
+	 | awk /'inet addr/ {print $4}'
+
+	 | awk /'HWaddr/ {print $4,$5}'
+	echo "---------------------------------------------------"
+elif [ -e "/usr/local/bin/brew" ] ; then # homebrew
+	echo "--------------- Network Information ---------------"
+	 | awk /'inet addr/ {print $2}'
+	echo ""
+	 | awk /'Bcast/ {print $3}'
+	echo ""
+	 | awk /'inet addr/ {print $4}'
+
+	 | awk /'HWaddr/ {print $4,$5}'
+	echo "---------------------------------------------------"
+
+fi
+}
+
+
 netinfo ()
 {
 	echo "--------------- Network Information ---------------"
