@@ -13,6 +13,9 @@ fi
 #	Alias
 #===============================#
 
+#allows sudo alias
+alias sudo="sudo "
+
 # Edit this .bashrc file
 alias ebrc='nano ~/.bashrc'
 
@@ -88,8 +91,10 @@ alias tree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^
 
 #ssh alias
 #alias servername="ssh username@address"
+#example
 alias plex="ssh plex@192.168.1.59"
 # alias SERVERNAME='ssh YOURWEBSITE.com -l USERNAME -p PORTNUMBERHERE'
+
 
 
 #===============================#
@@ -126,7 +131,8 @@ if [ -e "/usr/bin/apt-get" ] ; then # Apt-based distros (Debian, Ubuntu, etc.)
 elif [ -e "/usr/bin/pacman" ] ; then # Arch Linux
   pacman="/usr/bin/pacman"
   sudopacman="sudo $pacman"
-  alias paci="$pacman -S"
+  alias pacii="$pacman -S"
+  alias paci="yay -S"
   alias pacu="$pacman -Syu"
   alias pacr="$sudopacman -Rns"
   alias pacs="$pacman -Ss"
