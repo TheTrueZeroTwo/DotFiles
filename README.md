@@ -11,3 +11,9 @@ if [ -f ~/.pentesting_aliases ]; then
     source ~/.pentesting_aliases
 fi
 ```
+
+```bash
+
+git clone https://github.com/TheTrueZeroTwo/DotFiles /home/$user/ && chmod +x dotfile-install.sh && /home/$user/dotfile-install.sh
+
+```
