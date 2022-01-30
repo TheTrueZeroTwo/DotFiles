@@ -14,6 +14,6 @@ fi
 
 ```bash
 
-git clone https://github.com/TheTrueZeroTwo/DotFiles /home/$user/ && chmod +x dotfile-install.sh && /home/$user/dotfile-install.sh
+git clone https://github.com/TheTrueZeroTwo/DotFiles /home/$USER/ && chmod +x dotfile-install.sh && /home/$USER/dotfile-install.sh
 
 ```
