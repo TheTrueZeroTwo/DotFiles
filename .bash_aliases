@@ -90,6 +90,7 @@ alias grep="grep --color"
 alias tree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 
 #ssh alias
+alias ssh="ssh -t zsh"
 #alias servername="ssh username@address"
 #example
 alias plex="ssh plex@192.168.1.59"
