@@ -90,7 +90,7 @@ alias grep="grep --color"
 alias tree="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 
 #ssh alias
-alias ssh="ssh -t zsh"
+#alias ssh="ssh -t zsh"
 #alias servername="ssh username@address"
 #example
 alias plex="ssh plex@192.168.1.59"
@@ -116,6 +116,23 @@ alias plex="ssh plex@192.168.1.59"
 # paclcf       - list config files installed by a given package
 # pacexpl      - mark one or more packages as explicitly installed 
 # pacimpl      - mark one or more packages as non explicitly installed
+pac(){
+	echo -e "
+paci         - install one or more packages/n
+pacu         - upgrade all packages to their newest version/n
+pacr         - uninstall one or more packages/n
+pacs         - search for a package using one or more keywords/n
+pacinfo      - show information about a package/n
+pacinstalled - show if a package is installed/n
+paca         - list all installed packages/n
+paclo        - list all packages which are orphaned/n
+pacdnc       - delete all not currently installed package files/n
+pacfiles     - list all files installed by a given package/n
+pacwhoownsit - show what package owns a given file/n
+paclcf       - list config files installed by a given package/n
+pacexpl      - mark one or more packages as explicitly installed/n
+pacimpl      - mark one or more packages as non explicitly installed"
+}
 
 if [ -e "/usr/bin/apt-get" ] ; then # Apt-based distros (Debian, Ubuntu, etc.)
   aptget="/usr/bin/apt-get"
