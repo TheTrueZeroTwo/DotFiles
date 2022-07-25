@@ -53,17 +53,8 @@ alias 777='chmod -R 777'
 # Show open ports
 alias openports='netstat -nape --inet'
 
-#apt
-alias apt-update="sudo apt update"
-alias apt-upgrade="sudo apt upgrade -y"
-alias apt-update-full="sudo apt update && sudo apt upgrade -y"
-alias apt-install="sudo apt install -y"
-
 #Generate a random strong password
 alias genpasswd="strings /dev/urandom | grep -o '[[:alnum:]]' | head -n 30 | tr -d '\n'; echo"
-
-#Expand current directory structure in tree form
-alias treed="ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 
 #List by file size in current directory
 sbs() { du -b --max-depth 1 | sort -nr | perl -pe 's{([0-9]+)}{sprintf "%.1f%s", $1>=2**30? ($1/2**30, "G"):    $1>=2**20? ($1/2**20, "M"): $1>=2**10? ($1/2**10, "K"): ($1, "")}e';} 
