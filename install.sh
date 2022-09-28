@@ -29,7 +29,7 @@ fi
 cd /home/$USER/
 wget -P ~/.bash_aliases https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/.bash_aliases || fail
 
-echo "1s/^/if [ -f ~/.bash_aliases ]; then
+echo "if [ -f ~/.bash_aliases ]; then
     source ~/.bash_aliases
 fi
 if [ -f ~/.pentesting_aliases ]; then
