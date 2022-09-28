@@ -1,0 +1,7 @@
+#packages to be installed on a new system
+
+#dev
+code
+
+#terminal
+micro

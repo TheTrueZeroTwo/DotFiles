@@ -10,7 +10,7 @@ function fail() {
 
 
 #dotfiles install
-distro=1
+#distro=1
 
 #find what distro is being used
 if [ -e "/usr/bin/apt-get" ] ; then # Apt-based distros (Debian, Ubuntu, etc.)
@@ -29,14 +29,12 @@ fi
 cd /home/$USER/
 wget -P ~/.bash_aliases https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/.bash_aliases || fail
 
-sed -i "1s/^/if [ -f ~/.bash_aliases ]; then
+echo "1s/^/if [ -f ~/.bash_aliases ]; then
     source ~/.bash_aliases
 fi
 if [ -f ~/.pentesting_aliases ]; then
     source ~/.pentesting_aliases
-fi
-
-EDITOR=micro/" /home/$USER/.zshrc
+fi" | tee -a ~/.bashrc ~/.zshrc
 
 
 
@@ -57,10 +55,17 @@ wget -P ~/Downloads/packages_to_be_installed.txt https://raw.githubusercontent.c
 
 #update system
 echo -e "updating system"
+source ~/.bash_aliases
 sudo pacu
 
 #install aditional packages
 for i in 'cat /home/$USER/Downloads/packages_to_be_installed.txt'; do "sudo paci $1"; done
+
+
+#done installing packages
+echo -e "installing zsh and powerlevel10k"
+#install zsh and powerlevel10k
+
 
 #downlaod zsh fonts
 mkdir -p ~/.local/share/fonts
@@ -96,7 +101,7 @@ echo -e "Setting up Home dir"
 
 
 #set up Home dir
-mkdir -p /home/$USER/git
+mkdir -p /home/$USER/github
 mkdir -p /home/$USER/projects
 
 #DONE!
