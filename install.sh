@@ -27,7 +27,7 @@ fi
 
 #downlaod dotfiles
 cd /home/$USER/
-wget -P ~/.bash_aliases https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/.bash_aliases || fail
+wget https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/.bash_aliases
 
 echo "if [ -f ~/.bash_aliases ]; then
     source ~/.bash_aliases
