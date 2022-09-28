@@ -1,19 +1,14 @@
 # Dot_files
 Common addition to dot files to make Quality Of Life Changes.
-These are not Dot file Replacements these are intended to be added to Dot files.
+These are not Dot file Replacements these are intended to be added.
 
-Put this in yout .bashrc file
+
+
+___
+
+install in one line
+===
 ```bash
-if [ -f ~/.bash_aliases ]; then
-    source ~/.bash_aliases
-fi
-if [ -f ~/.pentesting_aliases ]; then
-    source ~/.pentesting_aliases
-fi
+sudo su -c "wget 'https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/install.sh' | bash"
 ```
-
-```bash
-
-git clone https://github.com/TheTrueZeroTwo/DotFiles /home/$USER/ && chmod +x /home/$USER/dotfile-install.sh && /home/$USER/dotfile-install.sh
-
-```
+please dont run code that you do not trust
