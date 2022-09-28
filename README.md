@@ -9,6 +9,6 @@ ___
 install in one line
 ===
 ```bash
-sudo su -c "wget 'https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/install.sh' | bash"
+wget 'https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/install.sh' & sudo chmod +x ./install.sh & /bin/bash ./install.sh
 ```
 please dont run code that you do not trust
