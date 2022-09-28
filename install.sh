@@ -51,7 +51,7 @@ echo -e "Starting to install programs"
 #  source $TERMTYPE
 
 #download package list
-wget -P ~/Downloads/packages_to_be_installed.txt https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/packages_to_be_installed.txt /home/$USER/Downloads/packages_to_be_installed.txt || fail
+wget -P ~/Downloads/packages_to_be_installed.txt https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/packages_to_be_installed.txt /home/$USER/Downloads/packages_to_be_installed.txt
 
 #update system
 echo -e "updating system"
