@@ -172,6 +172,15 @@ elif [ -e "/usr/local/bin/brew" ] ; then # homebrew
   alias pacup="$brew upgrade"
   alias pacs="$brew search"
   alias pacr="$brew uninstall"
+ elif [ -e "/usr/bin/dnf" ] ; then # fedora
+  dnf="/usr/bin/dnf"
+  sudodnf="sudo $dnf"
+  repoquery="$sudodnf repoquery"
+  alias paci="$sudodnf install"
+  alias pacu="$sudodnf upgrade"
+  alias pacr="$sudodnf remove"
+  alias pacs="$sudodnf search"
+  alias pacinfo="$sudodnf info"
 fi
 
 # ex - archive extractor
