@@ -5,3 +5,8 @@ code
 
 #terminal
 micro
+
+#utilties
+bat
+doggo
+eza
