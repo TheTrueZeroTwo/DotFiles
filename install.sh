@@ -57,25 +57,29 @@ case $distro in
 esac
 
 # Install additional packages
-for i in $(cat /home/$USER/Downloads/packages_to_be_installed.txt); do
+while read -r package; do
+    # Skip comments and blank lines
+    [[ "$package" =~ ^#.*$ ]] && continue
+    [[ -z "$package" ]] && continue
+    
     case $distro in
         apt)
-            sudo apt-get install -y $i || fail
+            sudo apt-get install -y $package || fail
             ;;
         pacman)
-            sudo pacman -S --noconfirm $i || fail
+            sudo pacman -S --noconfirm $package || fail
             ;;
         yum)
-            sudo yum install -y $i || fail
+            sudo yum install -y $package || fail
             ;;
         brew)
-            brew install $i || fail
+            brew install $package || fail
             ;;
         *)
             echo "Unsupported distribution" || fail
             ;;
     esac
-done
+done < /home/$USER/Downloads/packages_to_be_installed.txt
 
 echo -e "Installing zsh and powerlevel10k"
 
