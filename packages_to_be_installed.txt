@@ -8,5 +8,4 @@ micro
 
 #utilties
 bat
-doggo
 eza
