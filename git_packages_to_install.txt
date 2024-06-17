@@ -1,0 +1,11 @@
+#!/bin/bash
+
+install_doggo() {
+    echo -e "Installing doggo from GitHub"
+    cd "$(mktemp -d)" || fail
+    curl -sL "https://github.com/mr-karan/doggo/releases/download/v0.3.7/doggo_0.3.7_linux_amd64.tar.gz" | tar xz || fail
+    sudo mv doggo /usr/local/bin || fail
+    echo "doggo installed successfully"
+}
+
+# Add more functions here for other git packages
