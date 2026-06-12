@@ -197,6 +197,10 @@ detect_pm() {
     echo pacman
   elif command -v yum >/dev/null 2>&1; then
     echo yum
+  elif command -v zypper >/dev/null 2>&1; then
+    echo zypper
+  elif command -v apk >/dev/null 2>&1; then
+    echo apk
   elif command -v brew >/dev/null 2>&1; then
     echo brew
   else
@@ -211,6 +215,8 @@ pm_update() {
     apt) run sudo apt-get update ;;
     pacman) run sudo pacman -Sy ;;
     yum) run sudo yum makecache ;;
+    zypper) run sudo zypper --non-interactive refresh ;;
+    apk) run sudo apk update ;;
     brew) run brew update ;;
     unsupported) warn "No supported package manager detected" ;;
   esac
@@ -225,6 +231,8 @@ pm_install() {
     apt) run sudo apt-get install -y "$@" ;;
     pacman) run sudo pacman -S --needed --noconfirm "$@" ;;
     yum) run sudo yum install -y "$@" ;;
+    zypper) run sudo zypper --non-interactive install --no-recommends "$@" ;;
+    apk) run sudo apk add --no-cache "$@" ;;
     brew) run brew install "$@" ;;
     *) return 1 ;;
   esac
@@ -233,6 +241,8 @@ pm_install() {
 package_file_for_pm() {
   case "$1" in
     dnf|yum) echo "$SOURCE_DIR/packages/fedora.txt" ;;
+    zypper) echo "$SOURCE_DIR/packages/opensuse.txt" ;;
+    apk) echo "$SOURCE_DIR/packages/alpine.txt" ;;
     apt) echo "$SOURCE_DIR/packages/debian.txt" ;;
     pacman) echo "$SOURCE_DIR/packages/arch.txt" ;;
     brew) echo "$SOURCE_DIR/packages/macos.txt" ;;
@@ -278,6 +288,8 @@ prepare_sources() {
     shell/path.sh \
     packages/common.txt \
     packages/fedora.txt \
+    packages/opensuse.txt \
+    packages/alpine.txt \
     packages/debian.txt \
     packages/arch.txt \
     packages/macos.txt \

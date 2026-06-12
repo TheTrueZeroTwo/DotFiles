@@ -11,7 +11,7 @@ Tested design targets:
 - Fedora / Nobara / RHEL-like systems using `dnf` or `yum`
 - Debian / Ubuntu / Kali / Parrot using `apt`
 - Arch / EndeavourOS / Manjaro using `pacman`
-- macOS with Homebrew, partial support
+- macOS with Homebrew
 
 ## Safe install
 
@@ -128,3 +128,15 @@ The installer checks if it has been run before. If a managed file is different f
 - The installer does not store secrets.
 - Do not commit `.ssh`, `.gnupg`, `.env`, private keys, tokens, or machine-specific configs.
 - Review scripts before running curl-to-bash one-liners.
+
+
+## CI checks
+
+This repo includes both GitHub Actions and Gitea Actions workflows.
+The Gitea workflow lives at `.gitea/workflows/distro-checks.yml` and checks the scripts on Fedora, Debian, Ubuntu, Arch, Alpine, and OpenSUSE containers.
+
+Run the same basic checks locally with:
+
+```bash
+./scripts/ci-local.sh
+```

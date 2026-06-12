@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Extra PATH entries.
+# Extra PATH entries. Safe to source from bash or zsh.
 
 _dotfiles_add_path() {
   [ -d "$1" ] || return 0

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Compatibility file for the previous installer layout.
+# New installer reads packages/git.txt and calls install_git_tool_<name> functions.
 
 install_git_tool_doggo() {
   local version="${DOGGO_VERSION:-0.3.7}"

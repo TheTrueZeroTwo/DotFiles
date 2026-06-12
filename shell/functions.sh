@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Interactive shell functions
+# Shared interactive shell functions for TheTrueZeroTwo DotFiles.
 
 have() {
   command -v "$1" >/dev/null 2>&1
@@ -43,15 +43,11 @@ extract() {
   done
 }
 
-ex() {
-  extract "$@"
-}
-
 publicip() {
   if have curl; then
-    curl -fsSL https://ifconfig.me && printf '\n'
+    curl -fsSL --max-time 5 https://ifconfig.me && printf '\n'
   elif have wget; then
-    wget -qO- https://ifconfig.me && printf '\n'
+    wget -qO- --timeout=5 https://ifconfig.me && printf '\n'
   else
     echo "curl or wget is required" >&2
     return 1
@@ -85,7 +81,7 @@ openports() {
   ports "$@"
 }
 
-dns_servers() {
+_dotfiles_dns_servers() {
   if have resolvectl; then
     resolvectl dns 2>/dev/null | sed 's/^/  /'
   elif have systemd-resolve; then
@@ -99,7 +95,7 @@ dns_servers() {
   fi
 }
 
-query_dns() {
+_dotfiles_query_dns() {
   local host="${1:-example.com}"
   if have doggo; then
     doggo "$host" A AAAA
@@ -116,7 +112,7 @@ query_dns() {
   fi
 }
 
-netinfo() {
+netinfo2() {
   local query_host="${1:-example.com}"
 
   echo "== System =="
@@ -162,7 +158,11 @@ netinfo() {
 
   echo
   echo "== Public IP =="
-  publicip 2>/dev/null || echo "Unavailable"
+  if [ "${NETINFO2_SKIP_PUBLIC_IP:-0}" = "1" ] || [ "${NETINFO2_NO_PUBLIC_IP:-0}" = "1" ]; then
+    echo "Skipped by NETINFO2_SKIP_PUBLIC_IP"
+  else
+    publicip 2>/dev/null || echo "Unavailable"
+  fi
 
   echo
   echo "== Listening ports =="
@@ -190,6 +190,8 @@ netinfo() {
   else
     echo "No common firewall command found"
   fi
+
+  return 0
 }
 
 safe_chmod_recursive() {
@@ -207,98 +209,3 @@ safe_chmod_recursive() {
   [ "$answer" = "YES" ] || return 1
   chmod -R "$mode" "$@"
 }
-
-#===============================#
-#	Functions		            #
-#===============================#
-
-# paci         - install one or more packages
-# pacu         - upgrade all packages to their newest version
-# pacr         - uninstall one or more packages
-# pacs         - search for a package using one or more keywords
-# pacinfo      - show information about a package
-# pacinstalled - show if a package is installed
-# paca         - list all installed packages
-# paclo        - list all packages which are orphaned
-# pacdnc       - delete all not currently installed package files
-# pacfiles        - list all files installed by a given package
-# pacwhoownsit - show what package owns a given file
-# paclcf       - list config files installed by a given package
-# pacexpl      - mark one or more packages as explicitly installed
-# pacimpl      - mark one or more packages as non explicitly installed
-pac(){
-	echo -e "
-paci         - install one or more packages/n
-pacu         - upgrade all packages to their newest version/n
-pacr         - uninstall one or more packages/n
-pacs         - search for a package using one or more keywords/n
-pacinfo      - show information about a package/n
-pacinstalled - show if a package is installed/n
-paca         - list all installed packages/n
-paclo        - list all packages which are orphaned/n
-pacdnc       - delete all not currently installed package files/n
-pacfiles     - list all files installed by a given package/n
-pacwhoownsit - show what package owns a given file/n
-paclcf       - list config files installed by a given package/n
-pacexpl      - mark one or more packages as explicitly installed/n
-pacimpl      - mark one or more packages as non explicitly installed"
-}
-
-if [ -e "/usr/bin/apt-get" ] ; then # Apt-based distros
-  aptget="/usr/bin/apt-get"
-  sudoaptget="sudo $aptget"
-  aptcache="/usr/bin/apt-cache"
-  dpkg="/usr/bin/dpkg"
-  alias paci="$sudoaptget install"
-  alias pacu="$sudoaptget update"
-  alias pacs="$aptcache search"
-  alias pacinfo="$aptcache show"
-  alias pacinstalled="$aptcache policy"
-  alias paca="$dpkg --get-selections"
-  alias pacfiles="$dpkg -L"
-elif [ -e "/usr/bin/pacman" ] ; then # Arch Linux
-  pacman="/usr/bin/pacman"
-  sudopacman="sudo $pacman"
-  alias pacii="$pacman -S"
-  alias paci="yay -S"
-  alias pacu="$pacman -Syu"
-  alias pacr="$sudopacman -Rns"
-  alias pacs="$pacman -Ss"
-  alias pacinfo="$pacman -Si"
-  alias paca="$pacman -Q"
-  alias paclo="$pacman -Qdt"
-  alias pacdnc="$sudopacman -Scc"
-  alias pacfiles="$pacman -Ql"
-  alias pacexpl="$pacman -D --asexp"
-  alias pacimpl="$pacman -D --asdep"
-elif [ -e "/usr/bin/yum" ] ; then # RPM-based distros
-  yum="/usr/bin/yum"
-  sudoyum="sudo $yum"
-  repoquery="/usr/bin/repoquery"
-  alias paci="$sudoyum install"
-  alias pacu="$sudoyum update"
-  alias pacr="$sudoyum remove"
-  alias pacs="$yum search"
-  alias pacfiles="$repoquery -lq --installed"
-  alias pacwhoownsit="$yum whatprovides"
-  alias pacinfo="$yum info"
-  alias paclfc="$yum -qc"
-  alias paccheckforupdates="$sudoyum list updates"
-elif [ -e "/usr/local/bin/brew" ] ; then # homebrew
-  brew="/usr/local/bin/brew"
-  alias paci="$brew install"
-  alias pacu="$brew update"
-  alias pacup="$brew upgrade"
-  alias pacs="$brew search"
-  alias pacr="$brew uninstall"
- elif [ -e "/usr/bin/dnf" ] ; then # fedora
-  dnf="/usr/bin/dnf"
-  sudodnf="sudo $dnf"
-  repoquery="$sudodnf repoquery"
-  alias paci="$sudodnf install"
-  alias pacu="$sudodnf upgrade"
-  alias pacr="$sudodnf remove"
-  alias pacs="$sudodnf search"
-  alias pacinfo="$sudodnf info"
-fi
-

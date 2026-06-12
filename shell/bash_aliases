@@ -1,5 +1,7 @@
 # shellcheck shell=bash
+# TheTrueZeroTwo Bash aliases and interactive helpers.
 
+# Load optional per-user bashrc.d snippets safely.
 if [ -d "${HOME}/.bashrc.d" ]; then
   for file in "${HOME}"/.bashrc.d/*.bashrc; do
     [ -r "$file" ] && . "$file"
@@ -7,7 +9,7 @@ if [ -d "${HOME}/.bashrc.d" ]; then
   unset file
 fi
 
-
+# Source shared helper files when installed from this repo or copied to $HOME.
 _dotfiles_repo_dir="${THETRUEZEROTWO_DOTFILES_DIR:-}"
 if [ -z "$_dotfiles_repo_dir" ]; then
   for candidate in "${XDG_CONFIG_HOME:-$HOME/.config}/thetruezerotwo-dotfiles" "$HOME/github/DotFiles" "$HOME/DotFiles" "$HOME/.dotfiles"; do
@@ -26,9 +28,6 @@ else
   have() { command -v "$1" >/dev/null 2>&1; }
 fi
 unset _dotfiles_repo_dir candidate
-
-# Change editor
-alias edit='micro'
 
 # Allow sudo to use aliases.
 alias sudo='sudo '
@@ -90,6 +89,13 @@ alias dnsservers='_dotfiles_dns_servers'
 alias externalip='publicip'
 alias pubip='publicip'
 
+# Package manager helpers.
+alias aptu='sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y'
+alias dnfu='sudo dnf upgrade --refresh -y && sudo dnf autoremove -y'
+alias yumu='sudo yum update -y'
+alias pacup='sudo pacman -Syu'
+alias zypup='sudo zypper refresh && sudo zypper update -y'
+alias brewu='brew update && brew upgrade && brew cleanup'
 
 # Filesystem helpers.
 alias mkdirp='mkdir -p'
