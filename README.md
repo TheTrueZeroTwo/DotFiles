@@ -18,7 +18,7 @@ Tested design targets:
 ## Safe install
 
 ```bash
-git clone https://github.com/TheTrueZeroTwo/DotFiles.git ~/github/DotFiles
+git clone https://gitthegit.zerotwo.tech/ZeroTwo/DotFiles.git ~/github/DotFiles
 cd ~/github/DotFiles
 ./install.sh --dry-run
 ./install.sh
@@ -29,7 +29,19 @@ cd ~/github/DotFiles
 Review the script first. Dotfiles change shell behavior.
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main/install.sh)
+curl -fsSL https://gitthegit.zerotwo.tech/ZeroTwo/DotFiles/raw/branch/main/install.sh | bash -s --
+```
+
+One-line install without packages:
+
+```bash
+curl -fsSL https://gitthegit.zerotwo.tech/ZeroTwo/DotFiles/raw/branch/main/install.sh | bash -s -- --no-packages
+```
+
+One-line dry run:
+
+```bash
+curl -fsSL https://gitthegit.zerotwo.tech/ZeroTwo/DotFiles/raw/branch/main/install.sh | bash -s -- --dry-run --no-packages
 ```
 
 ## Common commands
@@ -50,7 +62,7 @@ Update aliases from the repo after pulling changes:
 
 ```bash
 cd ~/github/DotFiles
-git pull
+git pull --ff-only
 ./install.sh --update-aliases --no-packages
 ```
 
@@ -106,16 +118,34 @@ The installer checks if it has been run before. If a managed file is different f
 │   └── path.sh
 ├── packages/
 │   ├── common.txt
-│   ├── fedora.txt
-│   ├── debian.txt
+│   ├── alpine.txt
 │   ├── arch.txt
+│   ├── debian.txt
+│   ├── fedora.txt
+│   ├── git.txt
 │   ├── macos.txt
-│   └── git.txt
-└── .github/workflows/shellcheck.yml
+│   └── opensuse.txt
+├── .gitea/workflows/distro-checks.yml
+├── scripts/ci-local.sh
+├── wiki/
+│   ├── Home.md
+│   ├── User-Guide.md
+│   ├── One-Line-Install.md
+│   ├── Aliases-and-Functions.md
+│   ├── Package-Helpers.md
+│   ├── Network-Helpers.md
+│   ├── Contributor-Guide.md
+│   ├── Pull-Request-Guide.md
+│   ├── CI-and-Testing.md
+│   └── Troubleshooting.md
+└── docs/
 ```
 
 ## Helpful aliases/functions
 
+- `pac` - cross-distro package-helper menu
+- `paci`, `pacu`, `pacr`, `pacs`, `pacinfo` - install, upgrade, remove, search, and show package info across apt/dnf/yum/pacman/zypper/apk/brew
+- `pacinstalled`, `paca`, `paclo`, `pacdnc`, `pacfiles`, `pacwhoownsit`, `paclcf`, `pacexpl`, `pacimpl` - package inventory, cache, ownership, config-file, and explicit/dependency helpers where supported
 - `netinfo2` - distro-safe network report using whatever tools are available
 - `openports` - listening ports using `ss`, `netstat`, or `lsof`
 - `myip` - local IP summary
@@ -134,11 +164,14 @@ The installer checks if it has been run before. If a managed file is different f
 
 ## CI checks
 
-This repo includes both GitHub Actions and Gitea Actions workflows.
-The Gitea workflow lives at `.gitea/workflows/distro-checks.yml` and checks the scripts on Fedora, Debian, Ubuntu, Arch, Alpine, and OpenSUSE containers.
+This repo includes Gitea Actions only. The workflow lives at `.gitea/workflows/distro-checks.yml` and checks the scripts on Fedora, Debian, Ubuntu, Arch, Alpine, and OpenSUSE containers. No `.github` directory is included.
 
 Run the same basic checks locally with:
 
 ```bash
 ./scripts/ci-local.sh
 ```
+
+## Wiki pages
+
+Repository wiki-source pages are included in `wiki/`. Copy them into the Gitea wiki repo, or keep them in-tree as documentation. They cover install, user usage, aliases/functions, package helpers, network helpers, CI, contributing, pull requests, and troubleshooting.

@@ -23,4 +23,11 @@ export XDG_STATE_HOME="$HOME/.local/state"
 # shellcheck disable=SC1090
 source "$HOME/.bash_aliases"
 type netinfo2 >/dev/null
+type pac >/dev/null
+type paci >/dev/null
+pac >/tmp/pac-help.out
+pacpm >/tmp/pacpm.out
 NETINFO2_SKIP_PUBLIC_IP=1 netinfo2 localhost >/tmp/netinfo2.out
+# shellcheck disable=SC1090
+source "$HOME/.pentesting_aliases"
+type tun0ip >/dev/null

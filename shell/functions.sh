@@ -209,3 +209,379 @@ safe_chmod_recursive() {
   [ "$answer" = "YES" ] || return 1
   chmod -R "$mode" "$@"
 }
+
+#===============================#
+# Package manager wrapper helpers
+#===============================#
+# pac          - show this package helper menu
+# pacpm        - show detected package manager
+# paci         - install one or more packages
+# pacu         - upgrade all packages to their newest version
+# pacr         - uninstall one or more packages
+# pacs         - search for a package using one or more keywords
+# pacinfo      - show information about a package
+# pacinstalled - show if a package is installed
+# paca         - list all installed packages
+# paclo        - list orphaned/no-longer-needed packages, where supported
+# pacdnc       - delete package cache files no longer needed
+# pacfiles     - list all files installed by a given package
+# pacwhoownsit - show what package owns a given file
+# paclcf       - list config files installed by a given package, where supported
+# pacexpl      - mark one or more packages as explicitly/user installed
+# pacimpl      - mark one or more packages as automatically/dependency installed
+
+_pac_detect_pm() {
+  if have apt-get; then
+    echo apt
+  elif have dnf; then
+    echo dnf
+  elif have yum; then
+    echo yum
+  elif have pacman; then
+    echo pacman
+  elif have zypper; then
+    echo zypper
+  elif have apk; then
+    echo apk
+  elif have brew; then
+    echo brew
+  else
+    echo unsupported
+  fi
+}
+
+_pac_as_root() {
+  if [ "${EUID:-$(id -u)}" -eq 0 ]; then
+    "$@"
+  elif have sudo; then
+    sudo "$@"
+  else
+    printf 'This command needs root. Install sudo or run as root:' >&2
+    printf ' %q' "$@" >&2
+    printf '\n' >&2
+    return 1
+  fi
+}
+
+_pac_need_args() {
+  local name="$1"
+  shift
+  if [ "$#" -eq 0 ]; then
+    echo "usage: $name <package-or-file> [...]" >&2
+    return 2
+  fi
+}
+
+_pac_unsupported() {
+  local command_name="$1"
+  local pm
+  pm="$(_pac_detect_pm)"
+  echo "$command_name is not supported for detected package manager: $pm" >&2
+  return 1
+}
+
+pacpm() {
+  _pac_detect_pm
+}
+
+pac() {
+  cat <<'PAC_HELP'
+Package helper commands:
+
+  pac          - show this menu
+  pacpm        - show detected package manager
+  paci         - install one or more packages
+  pacu         - upgrade all packages to their newest version
+  pacr         - uninstall one or more packages
+  pacs         - search for a package using one or more keywords
+  pacinfo      - show information about a package
+  pacinstalled - show if a package is installed
+  paca         - list all installed packages
+  paclo        - list orphaned/no-longer-needed packages, where supported
+  pacdnc       - delete package cache files no longer needed
+  pacfiles     - list all files installed by a given package
+  pacwhoownsit - show what package owns a given file
+  paclcf       - list config files installed by a given package, where supported
+  pacexpl      - mark one or more packages as explicitly/user installed
+  pacimpl      - mark one or more packages as automatically/dependency installed
+
+Supported managers:
+
+  apt, dnf, yum, pacman/yay, zypper, apk, brew
+
+Examples:
+
+  paci htop curl
+  pacs openssh
+  pacinfo bash
+  pacinstalled git
+  pacfiles bash
+  pacwhoownsit /usr/bin/bash
+PAC_HELP
+}
+
+paci() {
+  _pac_need_args paci "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt) _pac_as_root apt-get install "$@" ;;
+    dnf) _pac_as_root dnf install "$@" ;;
+    yum) _pac_as_root yum install "$@" ;;
+    pacman)
+      if have yay; then
+        yay -S "$@"
+      else
+        _pac_as_root pacman -S --needed "$@"
+      fi
+      ;;
+    zypper) _pac_as_root zypper install "$@" ;;
+    apk) _pac_as_root apk add "$@" ;;
+    brew) brew install "$@" ;;
+    *) _pac_unsupported paci ;;
+  esac
+}
+
+pacu() {
+  case "$(_pac_detect_pm)" in
+    apt)
+      _pac_as_root apt-get update && _pac_as_root apt-get full-upgrade -y && _pac_as_root apt-get autoremove -y
+      ;;
+    dnf) _pac_as_root dnf upgrade --refresh -y && _pac_as_root dnf autoremove -y ;;
+    yum) _pac_as_root yum update -y ;;
+    pacman)
+      if have yay; then
+        yay -Syu
+      else
+        _pac_as_root pacman -Syu
+      fi
+      ;;
+    zypper) _pac_as_root zypper refresh && _pac_as_root zypper update -y ;;
+    apk) _pac_as_root apk update && _pac_as_root apk upgrade ;;
+    brew) brew update && brew upgrade && brew cleanup ;;
+    *) _pac_unsupported pacu ;;
+  esac
+}
+
+pacr() {
+  _pac_need_args pacr "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt) _pac_as_root apt-get remove "$@" ;;
+    dnf) _pac_as_root dnf remove "$@" ;;
+    yum) _pac_as_root yum remove "$@" ;;
+    pacman) _pac_as_root pacman -Rns "$@" ;;
+    zypper) _pac_as_root zypper remove "$@" ;;
+    apk) _pac_as_root apk del "$@" ;;
+    brew) brew uninstall "$@" ;;
+    *) _pac_unsupported pacr ;;
+  esac
+}
+
+pacs() {
+  _pac_need_args pacs "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have apt-cache; then
+        apt-cache search "$@"
+      else
+        apt search "$@"
+      fi
+      ;;
+    dnf) dnf search "$@" ;;
+    yum) yum search "$@" ;;
+    pacman) pacman -Ss "$@" ;;
+    zypper) zypper search "$@" ;;
+    apk) apk search "$@" ;;
+    brew) brew search "$@" ;;
+    *) _pac_unsupported pacs ;;
+  esac
+}
+
+pacinfo() {
+  _pac_need_args pacinfo "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have apt-cache; then
+        apt-cache show "$@"
+      else
+        apt show "$@"
+      fi
+      ;;
+    dnf) dnf info "$@" ;;
+    yum) yum info "$@" ;;
+    pacman) pacman -Si "$@" ;;
+    zypper) zypper info "$@" ;;
+    apk) apk info -a "$@" ;;
+    brew) brew info "$@" ;;
+    *) _pac_unsupported pacinfo ;;
+  esac
+}
+
+pacinstalled() {
+  _pac_need_args pacinstalled "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have dpkg-query; then
+        dpkg-query -W -f='${binary:Package}\t${Version}\t${Status}\n' "$@"
+      elif have apt-cache; then
+        apt-cache policy "$@"
+      else
+        apt list --installed "$@"
+      fi
+      ;;
+    dnf) dnf list installed "$@" ;;
+    yum) yum list installed "$@" ;;
+    pacman) pacman -Q "$@" ;;
+    zypper) zypper search --installed-only "$@" ;;
+    apk) apk info -e "$@" ;;
+    brew) brew list --versions "$@" ;;
+    *) _pac_unsupported pacinstalled ;;
+  esac
+}
+
+paca() {
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have dpkg-query; then
+        dpkg-query -W -f='${binary:Package}\t${Version}\n'
+      else
+        apt list --installed
+      fi
+      ;;
+    dnf|yum) rpm -qa | sort ;;
+    pacman) pacman -Q ;;
+    zypper) zypper search --installed-only ;;
+    apk) apk info ;;
+    brew) brew list --versions ;;
+    *) _pac_unsupported paca ;;
+  esac
+}
+
+paclo() {
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have deborphan; then
+        deborphan
+      else
+        apt-get -s autoremove | awk '/^Remv /{print $2}'
+      fi
+      ;;
+    dnf) dnf repoquery --unneeded 2>/dev/null || dnf autoremove --assumeno ;;
+    yum)
+      if have package-cleanup; then
+        package-cleanup --leaves
+      else
+        yum autoremove --assumeno
+      fi
+      ;;
+    pacman) pacman -Qdt ;;
+    zypper) zypper packages --orphaned ;;
+    apk) _pac_unsupported paclo ;;
+    brew) brew leaves ;;
+    *) _pac_unsupported paclo ;;
+  esac
+}
+
+pacdnc() {
+  case "$(_pac_detect_pm)" in
+    apt) _pac_as_root apt-get autoclean && _pac_as_root apt-get autoremove -y ;;
+    dnf) _pac_as_root dnf clean packages ;;
+    yum) _pac_as_root yum clean packages ;;
+    pacman) _pac_as_root pacman -Sc ;;
+    zypper) _pac_as_root zypper clean ;;
+    apk) _pac_as_root apk cache clean ;;
+    brew) brew cleanup ;;
+    *) _pac_unsupported pacdnc ;;
+  esac
+}
+
+pacfiles() {
+  _pac_need_args pacfiles "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have dpkg; then
+        dpkg -L "$@"
+      else
+        _pac_unsupported pacfiles
+      fi
+      ;;
+    dnf|yum|zypper) rpm -ql "$@" ;;
+    pacman) pacman -Ql "$@" ;;
+    apk) apk info -L "$@" ;;
+    brew) brew list "$@" ;;
+    *) _pac_unsupported pacfiles ;;
+  esac
+}
+
+pacwhoownsit() {
+  _pac_need_args pacwhoownsit "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have dpkg; then
+        dpkg -S "$@"
+      else
+        _pac_unsupported pacwhoownsit
+      fi
+      ;;
+    dnf|yum|zypper) rpm -qf "$@" ;;
+    pacman) pacman -Qo "$@" ;;
+    apk) apk info -W "$@" ;;
+    brew) brew which-formula "$@" ;;
+    *) _pac_unsupported pacwhoownsit ;;
+  esac
+}
+
+paclcf() {
+  _pac_need_args paclcf "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt)
+      if have dpkg-query; then
+        dpkg-query -W -f='${Conffiles}\n' "$@"
+      else
+        _pac_unsupported paclcf
+      fi
+      ;;
+    dnf|yum|zypper) rpm -qc "$@" ;;
+    pacman)
+      pacman -Qii "$@" | awk '
+        /^Name[[:space:]]*:/ {pkg=$3}
+        /^BACKUP/ {show=1; next}
+        show && NF {print pkg " " $0}
+      '
+      ;;
+    apk|brew) _pac_unsupported paclcf ;;
+    *) _pac_unsupported paclcf ;;
+  esac
+}
+
+pacexpl() {
+  _pac_need_args pacexpl "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt) _pac_as_root apt-mark manual "$@" ;;
+    dnf) _pac_as_root dnf mark install "$@" ;;
+    yum) _pac_unsupported pacexpl ;;
+    pacman) _pac_as_root pacman -D --asexplicit "$@" ;;
+    zypper) _pac_unsupported pacexpl ;;
+    apk) _pac_as_root apk add "$@" ;;
+    brew) _pac_unsupported pacexpl ;;
+    *) _pac_unsupported pacexpl ;;
+  esac
+}
+
+pacimpl() {
+  _pac_need_args pacimpl "$@" || return
+  case "$(_pac_detect_pm)" in
+    apt) _pac_as_root apt-mark auto "$@" ;;
+    dnf) _pac_as_root dnf mark remove "$@" ;;
+    yum) _pac_unsupported pacimpl ;;
+    pacman) _pac_as_root pacman -D --asdeps "$@" ;;
+    zypper) _pac_unsupported pacimpl ;;
+    apk|brew) _pac_unsupported pacimpl ;;
+    *) _pac_unsupported pacimpl ;;
+  esac
+}
+
+# Friendly synonyms for the package wrapper.
+pacup() { pacu "$@"; }
+pacsearch() { pacs "$@"; }
+pacown() { pacwhoownsit "$@"; }
+paccache() { pacdnc "$@"; }
+pacorphans() { paclo "$@"; }

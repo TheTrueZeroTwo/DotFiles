@@ -90,10 +90,11 @@ alias externalip='publicip'
 alias pubip='publicip'
 
 # Package manager helpers.
+# Cross-distro package wrapper functions are defined in shell/functions.sh.
+# Run `pac` for the full help menu.
 alias aptu='sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y'
 alias dnfu='sudo dnf upgrade --refresh -y && sudo dnf autoremove -y'
 alias yumu='sudo yum update -y'
-alias pacup='sudo pacman -Syu'
 alias zypup='sudo zypper refresh && sudo zypper update -y'
 alias brewu='brew update && brew upgrade && brew cleanup'
 

@@ -3,7 +3,9 @@ set -Eeuo pipefail
 
 REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$REPO_DIR"
-REMOTE_BASE="${DOTFILES_REMOTE_BASE:-https://raw.githubusercontent.com/TheTrueZeroTwo/DotFiles/main}"
+DOTFILES_REPO_URL="${DOTFILES_REPO_URL:-https://gitthegit.zerotwo.tech/ZeroTwo/DotFiles}"
+DOTFILES_BRANCH="${DOTFILES_BRANCH:-main}"
+REMOTE_BASE="${DOTFILES_REMOTE_BASE:-${DOTFILES_REPO_URL}/raw/branch/${DOTFILES_BRANCH}}"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/thetruezerotwo-dotfiles"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/thetruezerotwo-dotfiles"
 BACKUP_DIR="$STATE_DIR/backups"
@@ -428,6 +430,9 @@ install_aliases() {
   run mkdir -p "$STATE_DIR"
   STATE_TMP="$(mktemp)"
   state_put installed_at "$(date -Iseconds)"
+  state_put repo_url "$DOTFILES_REPO_URL"
+  state_put branch "$DOTFILES_BRANCH"
+  state_put remote_base "$REMOTE_BASE"
   state_put source_dir "$SOURCE_DIR"
 
   run mkdir -p "$CONFIG_DIR/shell"
