@@ -18,33 +18,52 @@ jobs:
         include:
           - name: Fedora
             image: fedora:latest
+            checkout_deps: |
+              dnf install -y nodejs git ca-certificates
             setup: |
               dnf install -y bash coreutils findutils gawk grep sed curl git iproute procps-ng util-linux ShellCheck
           - name: Debian
             image: debian:stable-slim
+            checkout_deps: |
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends nodejs git ca-certificates
             setup: |
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash ca-certificates coreutils findutils gawk grep sed curl git iproute2 procps util-linux shellcheck
           - name: Ubuntu
             image: ubuntu:latest
+            checkout_deps: |
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends nodejs git ca-certificates
             setup: |
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash ca-certificates coreutils findutils gawk grep sed curl git iproute2 procps util-linux shellcheck
           - name: Arch
             image: archlinux:latest
+            checkout_deps: |
+              pacman -Sy --noconfirm nodejs git ca-certificates
             setup: |
               pacman -Sy --noconfirm bash coreutils findutils gawk grep sed curl git iproute2 procps-ng util-linux shellcheck
           - name: Alpine
             image: alpine:latest
+            checkout_deps: |
+              apk add --no-cache nodejs git ca-certificates
             setup: |
               apk add --no-cache bash coreutils findutils gawk grep sed curl git iproute2 procps util-linux shellcheck
           - name: OpenSUSE
             image: opensuse/tumbleweed:latest
+            checkout_deps: |
+              zypper --non-interactive refresh
+              zypper --non-interactive install --no-recommends nodejs git ca-certificates
             setup: |
               zypper --non-interactive refresh
               zypper --non-interactive install --no-recommends bash coreutils findutils gawk grep sed curl git iproute2 procps util-linux ShellCheck
 
     steps:
+      - name: Install checkout dependencies
+        shell: sh
+        run: ${{ matrix.checkout_deps }}
+
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -58,6 +77,8 @@ jobs:
           set -euo pipefail
           cat /etc/os-release || true
           bash --version | head -n 1
+          node --version || true
+          git --version || true
 
       - name: Bash syntax checks
         shell: bash
@@ -71,12 +92,13 @@ jobs:
           bash -n shell/pentesting_aliases
           bash -n .bash_aliases
           bash -n .pentesting_aliases
+          bash -n scripts/ci-local.sh
 
       - name: ShellCheck
         shell: bash
         run: |
           set -euo pipefail
-          shellcheck install.sh uninstall.sh shell/path.sh shell/functions.sh shell/bash_aliases shell/pentesting_aliases .bash_aliases .pentesting_aliases
+          shellcheck install.sh uninstall.sh shell/path.sh shell/functions.sh shell/bash_aliases shell/pentesting_aliases .bash_aliases .pentesting_aliases scripts/ci-local.sh
 
       - name: Dry-run full installer
         shell: bash

@@ -11,7 +11,9 @@ Tested design targets:
 - Fedora / Nobara / RHEL-like systems using `dnf` or `yum`
 - Debian / Ubuntu / Kali / Parrot using `apt`
 - Arch / EndeavourOS / Manjaro using `pacman`
-- macOS with Homebrew
+- Alpine using `apk`
+- openSUSE using `zypper`
+- macOS with Homebrew, partial support
 
 ## Safe install
 

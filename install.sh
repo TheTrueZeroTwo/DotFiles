@@ -57,6 +57,18 @@ run() {
   fi
 }
 
+run_as_root() {
+  if [ "$DRY_RUN" -eq 1 ]; then
+    run "$@"
+  elif [ "$(id -u)" -eq 0 ]; then
+    run "$@"
+  elif command -v sudo >/dev/null 2>&1; then
+    run sudo "$@"
+  else
+    fail "This operation requires root or sudo: $*"
+  fi
+}
+
 confirm() {
   local prompt="$1"
   if [ "$YES" -eq 1 ]; then
@@ -211,12 +223,12 @@ detect_pm() {
 pm_update() {
   local pm="$1"
   case "$pm" in
-    dnf) run sudo dnf makecache --refresh ;;
-    apt) run sudo apt-get update ;;
-    pacman) run sudo pacman -Sy ;;
-    yum) run sudo yum makecache ;;
-    zypper) run sudo zypper --non-interactive refresh ;;
-    apk) run sudo apk update ;;
+    dnf) run_as_root dnf makecache --refresh ;;
+    apt) run_as_root apt-get update ;;
+    pacman) run_as_root pacman -Sy ;;
+    yum) run_as_root yum makecache ;;
+    zypper) run_as_root zypper --non-interactive refresh ;;
+    apk) run_as_root apk update ;;
     brew) run brew update ;;
     unsupported) warn "No supported package manager detected" ;;
   esac
@@ -227,12 +239,12 @@ pm_install() {
   shift
   [ "$#" -gt 0 ] || return 0
   case "$pm" in
-    dnf) run sudo dnf install -y "$@" ;;
-    apt) run sudo apt-get install -y "$@" ;;
-    pacman) run sudo pacman -S --needed --noconfirm "$@" ;;
-    yum) run sudo yum install -y "$@" ;;
-    zypper) run sudo zypper --non-interactive install --no-recommends "$@" ;;
-    apk) run sudo apk add --no-cache "$@" ;;
+    dnf) run_as_root dnf install -y "$@" ;;
+    apt) run_as_root apt-get install -y "$@" ;;
+    pacman) run_as_root pacman -S --needed --noconfirm "$@" ;;
+    yum) run_as_root yum install -y "$@" ;;
+    zypper) run_as_root zypper --non-interactive install --no-recommends "$@" ;;
+    apk) run_as_root apk add --no-cache "$@" ;;
     brew) run brew install "$@" ;;
     *) return 1 ;;
   esac
@@ -246,6 +258,8 @@ package_file_for_pm() {
     apt) echo "$SOURCE_DIR/packages/debian.txt" ;;
     pacman) echo "$SOURCE_DIR/packages/arch.txt" ;;
     brew) echo "$SOURCE_DIR/packages/macos.txt" ;;
+    apk) echo "$SOURCE_DIR/packages/alpine.txt" ;;
+    zypper) echo "$SOURCE_DIR/packages/opensuse.txt" ;;
     *) echo "" ;;
   esac
 }
@@ -293,6 +307,8 @@ prepare_sources() {
     packages/debian.txt \
     packages/arch.txt \
     packages/macos.txt \
+    packages/alpine.txt \
+    packages/opensuse.txt \
     packages/git.txt \
     git_packages_to_install.txt; do
     fetch_source_file "$rel"
