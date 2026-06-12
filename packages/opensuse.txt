@@ -1,0 +1,15 @@
+# OpenSUSE packages
+git
+curl
+wget
+zsh
+micro
+bat
+eza
+ripgrep
+fd
+fzf
+tmux
+ShellCheck
+iproute2
+bind-utils

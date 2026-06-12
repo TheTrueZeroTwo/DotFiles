@@ -1,0 +1,115 @@
+name: Multi-distro dotfiles checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  distro-checks:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+      options: --user root
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Fedora
+            image: fedora:latest
+            setup: |
+              dnf install -y bash coreutils findutils gawk grep sed curl git iproute procps-ng util-linux ShellCheck
+          - name: Debian
+            image: debian:stable-slim
+            setup: |
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash ca-certificates coreutils findutils gawk grep sed curl git iproute2 procps util-linux shellcheck
+          - name: Ubuntu
+            image: ubuntu:latest
+            setup: |
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash ca-certificates coreutils findutils gawk grep sed curl git iproute2 procps util-linux shellcheck
+          - name: Arch
+            image: archlinux:latest
+            setup: |
+              pacman -Sy --noconfirm bash coreutils findutils gawk grep sed curl git iproute2 procps-ng util-linux shellcheck
+          - name: Alpine
+            image: alpine:latest
+            setup: |
+              apk add --no-cache bash coreutils findutils gawk grep sed curl git iproute2 procps util-linux shellcheck
+          - name: OpenSUSE
+            image: opensuse/tumbleweed:latest
+            setup: |
+              zypper --non-interactive refresh
+              zypper --non-interactive install --no-recommends bash coreutils findutils gawk grep sed curl git iproute2 procps util-linux ShellCheck
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install distro test dependencies
+        shell: sh
+        run: ${{ matrix.setup }}
+
+      - name: Show distro details
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat /etc/os-release || true
+          bash --version | head -n 1
+
+      - name: Bash syntax checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n shell/path.sh
+          bash -n shell/functions.sh
+          bash -n shell/bash_aliases
+          bash -n shell/pentesting_aliases
+          bash -n .bash_aliases
+          bash -n .pentesting_aliases
+
+      - name: ShellCheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          shellcheck install.sh uninstall.sh shell/path.sh shell/functions.sh shell/bash_aliases shell/pentesting_aliases .bash_aliases .pentesting_aliases
+
+      - name: Dry-run full installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          export HOME="$(mktemp -d)"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          export XDG_STATE_HOME="$HOME/.local/state"
+          ./install.sh --dry-run --yes
+
+      - name: Real no-package install into temp HOME
+        shell: bash
+        run: |
+          set -euo pipefail
+          export HOME="$(mktemp -d)"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          export XDG_STATE_HOME="$HOME/.local/state"
+          ./install.sh --no-packages --yes
+          test -f "$HOME/.bash_aliases"
+          test -f "$HOME/.pentesting_aliases"
+          test -f "$HOME/.local/state/thetruezerotwo-dotfiles/install.state"
+
+      - name: Verify aliases and netinfo2 load
+        shell: bash
+        run: |
+          set -euo pipefail
+          export HOME="$(mktemp -d)"
+          export XDG_CONFIG_HOME="$HOME/.config"
+          export XDG_STATE_HOME="$HOME/.local/state"
+          ./install.sh --no-packages --yes
+          # shellcheck disable=SC1090
+          source "$HOME/.bash_aliases"
+          type netinfo2
+          NETINFO2_SKIP_PUBLIC_IP=1 netinfo2 localhost >/tmp/netinfo2.out
+          grep -q "== System ==" /tmp/netinfo2.out
+          grep -q "== Interfaces ==" /tmp/netinfo2.out

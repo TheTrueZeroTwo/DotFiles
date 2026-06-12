@@ -1,0 +1,17 @@
+# Alpine packages
+git
+curl
+wget
+zsh
+micro
+bat
+eza
+ripgrep
+fd
+fzf
+tmux
+shellcheck
+iproute2
+bind-tools
+procps
+util-linux

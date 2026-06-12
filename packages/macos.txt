@@ -1,0 +1,17 @@
+# Homebrew packages
+bash
+zsh
+git
+curl
+wget
+rsync
+tree
+tmux
+htop
+micro
+bat
+eza
+ripgrep
+fd
+jq
+shellcheck
