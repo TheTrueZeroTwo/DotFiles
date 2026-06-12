@@ -258,8 +258,6 @@ package_file_for_pm() {
     apt) echo "$SOURCE_DIR/packages/debian.txt" ;;
     pacman) echo "$SOURCE_DIR/packages/arch.txt" ;;
     brew) echo "$SOURCE_DIR/packages/macos.txt" ;;
-    apk) echo "$SOURCE_DIR/packages/alpine.txt" ;;
-    zypper) echo "$SOURCE_DIR/packages/opensuse.txt" ;;
     *) echo "" ;;
   esac
 }

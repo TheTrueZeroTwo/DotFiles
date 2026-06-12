@@ -57,7 +57,7 @@ jobs:
               zypper --non-interactive install --no-recommends nodejs git ca-certificates
             setup: |
               zypper --non-interactive refresh
-              zypper --non-interactive install --no-recommends bash coreutils findutils gawk grep sed curl git iproute2 procps util-linux ShellCheck
+              zypper --non-interactive install --no-recommends bash coreutils findutils grep sed curl git iproute2 procps util-linux ShellCheck
 
     steps:
       - name: Install checkout dependencies

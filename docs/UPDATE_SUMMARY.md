@@ -40,3 +40,10 @@ If local alias edits are detected, use:
 Added `.gitea/workflows/distro-checks.yml` to test this repo in Fedora, Debian, Ubuntu, Arch, Alpine, and OpenSUSE containers. The workflow checks Bash syntax, runs ShellCheck, performs installer dry-runs, installs aliases into a temporary home directory, and verifies that `netinfo2` loads successfully.
 
 Also added `scripts/ci-local.sh` for local syntax/lint/install smoke tests.
+
+
+## CI fix round 2
+
+- Removed duplicate `apk` and `zypper` cases from `install.sh` to fix ShellCheck SC2221/SC2222.
+- Converted `tun0ip` from an alias into a function to fix ShellCheck SC2142.
+- Removed explicit `gawk` from the OpenSUSE CI setup because Tumbleweed pulls `busybox-gawk` during checkout deps and then conflicts with full `gawk`.
