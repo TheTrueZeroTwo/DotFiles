@@ -1,0 +1,16 @@
+# Debian / Ubuntu / Kali / Parrot packages
+apt-transport-https
+ca-certificates
+gnupg
+micro
+bat
+eza
+ripgrep
+fd-find
+dnsutils
+iproute2
+iputils-ping
+procps
+util-linux
+net-tools
+shellcheck

@@ -1,0 +1,2 @@
+# Dotfiles intentionally define aliases/functions for interactive shells.
+disable=SC1090,SC1091,SC2148

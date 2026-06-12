@@ -1,0 +1,15 @@
+# Common packages. Installer also loads a distro-specific file.
+git
+curl
+wget
+rsync
+tree
+tmux
+htop
+vim
+nano
+jq
+unzip
+zip
+lsof
+zsh

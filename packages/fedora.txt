@@ -1,0 +1,14 @@
+# Fedora / Nobara / RHEL-like packages
+dnf-plugins-core
+micro
+bat
+eza
+ripgrep
+fd-find
+bind-utils
+iproute
+iputils
+procps-ng
+util-linux
+net-tools
+ShellCheck

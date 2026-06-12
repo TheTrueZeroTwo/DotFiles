@@ -1,0 +1,31 @@
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+known_hosts
+authorized_keys
+.ssh/
+.gnupg/
+
+# Local machine/app state
+.cache/
+.local/
+.config/gh/hosts.yml
+*.log
+
+# Editors
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Archives/build artifacts
+*.zip
+*.tar
+*.tar.gz
+*.tgz

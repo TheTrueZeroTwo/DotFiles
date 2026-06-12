@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+install_git_tool_doggo() {
+  local version="${DOGGO_VERSION:-0.3.7}"
+  local os arch asset tmpdir
+  os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64|amd64) arch="amd64" ;;
+    aarch64|arm64) arch="arm64" ;;
+    *) echo "Unsupported architecture for doggo: $arch" >&2; return 1 ;;
+  esac
+  asset="doggo_${version}_${os}_${arch}.tar.gz"
+  tmpdir="$(mktemp -d)"
+  trap 'rm -rf "$tmpdir"' RETURN
+  curl -fsSL "https://github.com/mr-karan/doggo/releases/download/v${version}/${asset}" | tar -xz -C "$tmpdir"
+  sudo install -m 0755 "$tmpdir/doggo" /usr/local/bin/doggo
+}

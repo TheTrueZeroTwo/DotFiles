@@ -1,0 +1,14 @@
+# Arch / Manjaro / EndeavourOS packages
+base-devel
+micro
+bat
+eza
+ripgrep
+fd
+bind
+iproute2
+iputils
+procps-ng
+util-linux
+net-tools
+shellcheck
